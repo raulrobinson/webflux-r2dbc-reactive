@@ -20,6 +20,7 @@ public class RouterConfig {
          return RouterFunctions.route()
                  .GET("/users", userHandler::getAllUsers)
                  .POST("/users", userHandler::createUser)
+                 .DELETE("/users/{id}", userHandler::deleteUser)
                  .build();
      }
 }

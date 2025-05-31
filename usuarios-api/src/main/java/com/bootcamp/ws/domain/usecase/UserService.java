@@ -56,4 +56,23 @@ public class UserService implements UserServicePort {
                         TechnicalMessage.NO_CONTENT
                         ))); // Handle case where no users are found
     }
+
+    @Override
+    public Mono<Boolean> deleteUser(Long userId) {
+        return persistencePort.findById(userId)
+                .flatMap(user -> {
+                    // 1. Check if the user exists
+                    if (user == null) {
+                        return Mono.error(new BusinessException(
+                                TechnicalMessage.NOT_FOUND.getMessage(),
+                                "User not found",
+                                String.format("User ID: %s", userId)
+                        ));
+                    }
+                    // 2. If exists, delete the user
+                    return persistencePort.deleteUser(userId);
+                })
+                .then(Mono.just(true));
+                //.then(); // Return a Mono<Void> to indicate completion
+    }
 }

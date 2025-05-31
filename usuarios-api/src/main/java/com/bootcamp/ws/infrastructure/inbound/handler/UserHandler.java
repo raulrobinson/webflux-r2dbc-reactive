@@ -38,4 +38,17 @@ public class UserHandler {
                 .flatMap(users -> ServerResponse.ok().bodyValue(users))
                 .onErrorResume(errorHandler::handle);
     }
+
+    public Mono<ServerResponse> deleteUser(ServerRequest request) {
+        Long userId = Long.valueOf(request.pathVariable("id"));
+        return userService.deleteUser(userId)
+                .flatMap(deleted -> {
+                    if (deleted) {
+                        return ServerResponse.noContent().build();
+                    } else {
+                        return ServerResponse.notFound().build();
+                    }
+                })
+                .onErrorResume(errorHandler::handle);
+    }
 }

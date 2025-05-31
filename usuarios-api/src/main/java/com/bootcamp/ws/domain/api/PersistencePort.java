@@ -12,4 +12,8 @@ public interface PersistencePort {
     Mono<Boolean> existsByName(String name);
 
     Flux<User> getAllUsers();
+
+    Mono<User> findById(Long userId);
+
+    Mono<Void> deleteUser(Long userId);
 }

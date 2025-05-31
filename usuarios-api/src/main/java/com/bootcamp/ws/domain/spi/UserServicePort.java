@@ -8,4 +8,6 @@ public interface UserServicePort {
     Mono<User> save(User user);
 
     Flux<User> getAllUsers();
+
+    Mono<Boolean> deleteUser(Long userId);
 }

@@ -59,4 +59,25 @@ public class PersistenceAdapter implements PersistencePort {
                 })
                 .switchIfEmpty(Flux.error(new ProcessorException(TechnicalMessage.INTERNAL_ERROR))); // Handle case where no users are found
     }
+
+    @Override
+    public Mono<User> findById(Long userId) {
+        return r2dbcUserRepository.findById(userId)
+                .map(userEntityMapper::toDomain)
+                .doOnError(throwable -> {
+                    // Log the error or handle it as needed
+                    System.err.println("Error finding user by ID: " + throwable.getMessage());
+                })
+                .switchIfEmpty(Mono.error(new ProcessorException(TechnicalMessage.INTERNAL_ERROR))); // Handle case where user is not found
+    }
+
+    @Override
+    public Mono<Void> deleteUser(Long userId) {
+        return r2dbcUserRepository.deleteById(userId)
+                .doOnError(throwable -> {
+                    // Log the error or handle it as needed
+                    System.err.println("Error deleting user: " + throwable.getMessage());
+                })
+                .switchIfEmpty(Mono.error(new ProcessorException(TechnicalMessage.INTERNAL_ERROR))); // Handle case where user is not found
+    }
 }
