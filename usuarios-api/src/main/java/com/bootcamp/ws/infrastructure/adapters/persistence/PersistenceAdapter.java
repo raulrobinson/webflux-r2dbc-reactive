@@ -1,11 +1,14 @@
 package com.bootcamp.ws.infrastructure.adapters.persistence;
 
 import com.bootcamp.ws.domain.api.PersistencePort;
+import com.bootcamp.ws.domain.exceptions.TechnicalMessage;
 import com.bootcamp.ws.domain.model.User;
 import com.bootcamp.ws.infrastructure.adapters.persistence.mapper.UserEntityMapper;
 import com.bootcamp.ws.infrastructure.adapters.persistence.repository.R2dbcUserRepository;
+import com.bootcamp.ws.infrastructure.common.exceptions.ProcessorException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -23,7 +26,7 @@ public class PersistenceAdapter implements PersistencePort {
                     // Log the error or handle it as needed
                     System.err.println("Error saving user: " + throwable.getMessage());
                 })
-                .switchIfEmpty(Mono.error(new RuntimeException("Error saving user"))); // Handle case where user is null
+                .switchIfEmpty(Mono.error(new ProcessorException(TechnicalMessage.INTERNAL_ERROR))); // Handle case where user is null
     }
 
     @Override
@@ -33,7 +36,7 @@ public class PersistenceAdapter implements PersistencePort {
                     // Log the error or handle it as needed
                     System.err.println("Error checking existence by email: " + throwable.getMessage());
                 })
-                .switchIfEmpty(Mono.error(new RuntimeException("Error checking existence by email"))); // Handle case where email is null
+                .switchIfEmpty(Mono.error(new ProcessorException(TechnicalMessage.INTERNAL_ERROR))); // Handle case where email is null
     }
 
     @Override
@@ -43,6 +46,17 @@ public class PersistenceAdapter implements PersistencePort {
                     // Log the error or handle it as needed
                     System.err.println("Error checking existence by name: " + throwable.getMessage());
                 })
-                .switchIfEmpty(Mono.error(new RuntimeException("Error checking existence by name"))); // Handle case where name is null
+                .switchIfEmpty(Mono.error(new ProcessorException(TechnicalMessage.INTERNAL_ERROR))); // Handle case where name is null
+    }
+
+    @Override
+    public Flux<User> getAllUsers() {
+        return r2dbcUserRepository.findAll()
+                .map(userEntityMapper::toListOfUsers)
+                .doOnError(throwable -> {
+                    // Log the error or handle it as needed
+                    System.err.println("Error retrieving all users: " + throwable.getMessage());
+                })
+                .switchIfEmpty(Flux.error(new ProcessorException(TechnicalMessage.INTERNAL_ERROR))); // Handle case where no users are found
     }
 }

@@ -18,7 +18,7 @@ public class RouterConfig {
      @Bean
      public RouterFunction<ServerResponse> route(UserHandler userHandler) {
          return RouterFunctions.route()
-//                 .GET("/users", userHandler::getAllUsers)
+                 .GET("/users", userHandler::getAllUsers)
                  .POST("/users", userHandler::createUser)
                  .build();
      }

@@ -1,10 +1,13 @@
 package com.bootcamp.ws.domain.usecase;
 
 import com.bootcamp.ws.domain.api.PersistencePort;
+import com.bootcamp.ws.domain.exceptions.BusinessException;
 import com.bootcamp.ws.domain.exceptions.DuplicateResourceException;
 import com.bootcamp.ws.domain.exceptions.TechnicalMessage;
 import com.bootcamp.ws.domain.model.User;
 import com.bootcamp.ws.domain.spi.UserServicePort;
+import com.bootcamp.ws.infrastructure.common.exceptions.NoContentException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class UserService implements UserServicePort {
@@ -43,5 +46,14 @@ public class UserService implements UserServicePort {
                                 return persistencePort.save(user);
                             });
                 });
+    }
+
+    @Override
+    public Flux<User> getAllUsers() {
+        // 1. Retrieve all users from the persistence layer
+        return persistencePort.getAllUsers()
+                .switchIfEmpty(Flux.error(new NoContentException(
+                        TechnicalMessage.NO_CONTENT
+                        ))); // Handle case where no users are found
     }
 }

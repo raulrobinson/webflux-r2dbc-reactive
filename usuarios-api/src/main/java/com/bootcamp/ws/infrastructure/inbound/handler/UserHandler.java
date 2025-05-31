@@ -32,6 +32,10 @@ public class UserHandler {
 //                });
     }
 
-//    public Mono<ServerResponse> getAllUsers(ServerRequest request) {
-//    }
+    public Mono<ServerResponse> getAllUsers(ServerRequest request) {
+        return userService.getAllUsers()
+                .collectList()
+                .flatMap(users -> ServerResponse.ok().bodyValue(users))
+                .onErrorResume(errorHandler::handle);
+    }
 }
